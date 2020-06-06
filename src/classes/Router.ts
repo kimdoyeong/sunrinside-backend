@@ -21,7 +21,7 @@ class Router {
       Promise.resolve(handler(req, res, next))
         .then((value) => {
           if (value) {
-            res.status(value.status).json(value);
+            res.status(value.status || 200).json(value);
           }
         })
         .catch((e) => {
