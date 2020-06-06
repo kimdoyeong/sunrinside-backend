@@ -26,15 +26,15 @@ class RootRouter {
     next: NextFunction
   ) {
     const error = err.code && err.status ? err : InternalServerError;
-    if (!error.code && !err.status) {
+    if (!err.code && !err.status) {
       console.error(err);
     }
 
-    res.status(err.status).json({
+    res.status(error.status).json({
       success: false,
-      message: err.message,
-      status: err.status,
-      code: err.code,
+      message: error.message,
+      status: error.status,
+      code: error.code,
     });
   }
 }
