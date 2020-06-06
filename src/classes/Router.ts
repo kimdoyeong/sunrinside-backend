@@ -1,5 +1,7 @@
 import { Router as ExpressRouter, RequestHandler } from "express";
-import { HTTPMethod, HTTPRequestHandler } from "../types/http";
+import { HTTPMethod } from "../types/http";
+import validateForm, { ValidateFormType } from "../lib/validateForm";
+import { FormBadRequestError } from "../constants/errors/BadRequest";
 
 class Router {
   private router = ExpressRouter();
@@ -15,9 +17,26 @@ class Router {
     method: HTTPMethod,
     path: string,
     handler: any,
-    ...middlewares: RequestHandler[]
+    options?: {
+      middlewares?: RequestHandler[];
+      validForm?: {
+        type: "query" | "body" | "params";
+        form: ValidateFormType;
+      };
+    }
   ) {
     const wrapHandler: RequestHandler = (req, res, next) => {
+      if (options?.validForm) {
+        const data = req[options.validForm.type];
+        const { isValid, notValidKeys } = validateForm(
+          data,
+          options.validForm.form
+        );
+
+        if (!isValid) {
+          return next(FormBadRequestError(notValidKeys.join(", ")));
+        }
+      }
       Promise.resolve(handler(req, res, next))
         .then((value) => {
           if (value) {
@@ -28,7 +47,7 @@ class Router {
           next(e);
         });
     };
-    this.router[method](path, ...(middlewares || []), wrapHandler);
+    this.router[method](path, ...(options?.middlewares || []), wrapHandler);
   }
 }
 
