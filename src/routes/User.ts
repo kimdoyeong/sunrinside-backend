@@ -26,6 +26,17 @@ class UserRouter extends Router {
         },
       },
     });
+    this.register("get", "/user/exists", this.isExistsUser, {
+      validateForm: {
+        type: "query",
+        form: {
+          username: {
+            required: true,
+            type: "string",
+          },
+        },
+      },
+    });
   }
 
   async createUser(req: Request) {
@@ -41,6 +52,17 @@ class UserRouter extends Router {
     return {
       status: 200,
       success: true,
+    };
+  }
+  async isExistsUser(req: Request) {
+    const { username } = req.query;
+    const user = await User.findOne({ username: username as any });
+    return {
+      status: 200,
+      success: true,
+      data: {
+        exists: !!user,
+      },
     };
   }
 }
