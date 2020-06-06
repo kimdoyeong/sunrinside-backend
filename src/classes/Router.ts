@@ -4,13 +4,17 @@ import { HTTPMethod, HTTPRequestHandler } from "../types/http";
 class Router {
   private router = ExpressRouter();
 
+  constructor() {
+    this.register.bind(this);
+  }
+
   getRouter() {
     return this.router;
   }
   register(
     method: HTTPMethod,
     path: string,
-    handler: HTTPRequestHandler,
+    handler: any,
     ...middlewares: RequestHandler[]
   ) {
     const wrapHandler: RequestHandler = (req, res, next) => {
