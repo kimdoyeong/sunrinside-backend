@@ -26,7 +26,7 @@ class RootRouter {
     next: NextFunction
   ) {
     const error = handleError(err);
-    if (err.status === 500) {
+    if (error.status === 500) {
       console.error(err);
     }
 
