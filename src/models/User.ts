@@ -35,8 +35,22 @@ export interface IUser {
 }
 export interface UserDocument extends IUser, Document {
   key: string;
+  validatePassword(password: string): boolean;
 }
 
+UserSchema.methods.validatePassword = function (
+  this: UserDocument,
+  password: string
+) {
+  const encryptedPassword = pbkdf2Sync(
+    password,
+    this.key,
+    100000,
+    64,
+    "sha512"
+  ).toString("base64");
+  return this.password === encryptedPassword;
+};
 const User = model<UserDocument>("user", UserSchema);
 
 export default User;
