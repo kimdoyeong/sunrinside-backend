@@ -33,7 +33,7 @@ export interface IUser {
   key?: string;
   name: string;
 }
-interface UserDocument extends IUser, Document {
+export interface UserDocument extends IUser, Document {
   key: string;
 }
 
