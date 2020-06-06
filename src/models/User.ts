@@ -29,10 +29,12 @@ const UserSchema = new Schema({
 export interface IUser {
   username: string;
   password: string;
-  key: string;
+  key?: string;
   name: string;
 }
-interface UserDocument extends IUser, Document {}
+interface UserDocument extends IUser, Document {
+  key: string;
+}
 
 const User = model<UserDocument>("user", UserSchema);
 
