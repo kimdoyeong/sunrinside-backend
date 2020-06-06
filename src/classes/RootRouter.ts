@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import RouterClass from "../classes/Router";
 import { InternalServerError } from "../constants/errors/InternalServer";
 import { ActionNotFound } from "../constants/errors/NotFound";
+import handleError from "../lib/handleError";
 class RootRouter {
   private static router = Router();
 
@@ -24,7 +25,7 @@ class RootRouter {
     res: Response,
     next: NextFunction
   ) {
-    const error = err.code && err.status ? err : InternalServerError;
+    const error = handleError(err);
     if (!err.code || !err.status) {
       console.error(err);
     }
