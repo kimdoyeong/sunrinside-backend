@@ -25,7 +25,7 @@ class RootRouter {
     next: NextFunction
   ) {
     const error = err.code && err.status ? err : InternalServerError;
-    if (!err.code && !err.status) {
+    if (!err.code || !err.status) {
       console.error(err);
     }
 
