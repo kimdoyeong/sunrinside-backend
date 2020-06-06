@@ -8,7 +8,7 @@ class UserRouter extends Router {
     super();
 
     this.register("post", "/user", this.createUser, {
-      validForm: {
+      validateForm: {
         type: "body",
         form: {
           username: {
