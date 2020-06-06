@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import RouterClass from "../classes/Router";
 import { InternalServerError } from "../constants/errors/InternalServer";
+import { ActionNotFound } from "../constants/errors/NotFound";
 class RootRouter {
   private static router = Router();
 
@@ -9,6 +10,9 @@ class RootRouter {
     this.router.use(router.getRouter());
   }
   public static getRouter() {
+    this.router.use((req, res, next) => {
+      next(ActionNotFound);
+    });
     this.router.use(this.errorHandler);
     return this.router;
   }
