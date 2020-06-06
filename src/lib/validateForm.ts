@@ -30,7 +30,7 @@ function validateForm(data: any, forms: ValidateFormType) {
     if (!forms[key]) continue;
     const form = forms[key];
     if (typeof form === "string") {
-      typeof value !== form && foundNotValid(key);
+      value && typeof value !== form && foundNotValid(key);
       continue;
     }
 
