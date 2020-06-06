@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Doyeong Kim <48087967+kimdoyeong@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "scripts": {
+    "start": "node build/",
+    "build": "tsc",
+    "dev": "nodemon -e ts --exec ts-node src"
+  }
+}
