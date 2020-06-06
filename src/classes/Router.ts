@@ -20,18 +20,18 @@ class Router {
     handler: any,
     options?: {
       middlewares?: RequestHandler[];
-      validForm?: {
+      validateForm?: {
         type: "query" | "body" | "params";
         form: ValidateFormType;
       };
     }
   ) {
     const wrapHandler: RequestHandler = (req, res, next) => {
-      if (options?.validForm) {
-        const data = req[options.validForm.type];
+      if (options?.validateForm) {
+        const data = req[options.validateForm.type];
         const { isValid, notValidKeys } = validateForm(
           data,
-          options.validForm.form
+          options.validateForm.form
         );
 
         if (!isValid) {
