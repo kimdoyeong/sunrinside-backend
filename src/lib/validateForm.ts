@@ -18,7 +18,7 @@ export type TypeofTypes =
   | "symbol"
   | "undefined";
 
-function validateForm(data: any, forms: ValidateFormType) {
+function validateForm(data: any = {}, forms: ValidateFormType) {
   let isValidAll = true;
   const notValidKeys: string[] = [];
 
