@@ -7,3 +7,14 @@ services:
       - .:/usr/app
     ports:
       - 4000:4000
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: sunrinside
+    volumes:
+      - db
+    logging:
+      driver: none
+volumes:
+  db:
