@@ -1,8 +1,12 @@
 import { Schema, model, Document } from "mongoose";
 import { randomBytes, pbkdf2Sync } from "crypto";
-import { EmailForbiddenError } from "../constants/errors/Auth";
+import {
+  EmailForbiddenError,
+  EmailVerifyForbiddenError,
+} from "../constants/errors/Auth";
 import EmailManager from "../classes/EmailManager";
 import randomChars from "../lib/randomChars";
+import env from "../constants/env";
 
 const UserSchema = new Schema({
   username: {
@@ -42,6 +46,7 @@ const UserSchema = new Schema({
     type: {
       validated: Boolean,
       code: String,
+      issued: Date,
     },
     default: {
       validated: false,
@@ -60,9 +65,11 @@ export interface UserDocument extends IUser, Document {
   emailValidate: {
     validated: boolean;
     code: string | undefined;
+    issued: number | undefined;
   };
   isAdmin: boolean;
   validatePassword(password: string): boolean;
+  verifyEmail(code: string): void;
 }
 
 UserSchema.methods.validatePassword = function (
@@ -78,16 +85,23 @@ UserSchema.methods.validatePassword = function (
   ).toString("base64");
   return this.password === encryptedPassword;
 };
+UserSchema.methods.verifyEmail = function (this: UserDocument, code: string) {
+  if (!this.emailValidate.issued) throw EmailVerifyForbiddenError;
+  if (Date.now() - this.emailValidate.issued > 1000 * 60 * 60 * 24)
+    throw EmailVerifyForbiddenError;
+  if (this.emailValidate.code !== code) throw EmailVerifyForbiddenError;
+};
 UserSchema.pre("validate", function (this: UserDocument, next) {
-  if (!this.email.match(/\@sunrint\.hs\.kr$/)) throw EmailForbiddenError;
+  if (!this.email.match(/\@sunrint\.hs\.kr$/) && !env.IGNORE_EMAIL_HOST)
+    throw EmailForbiddenError;
   next();
 });
 UserSchema.pre("save", async function (this: UserDocument) {
   if (!this.emailValidate.code && !this.emailValidate.validated) {
     const code = randomChars(24);
     this.emailValidate.code = code;
+    this.emailValidate.issued = Date.now();
 
-    console.log(this._id, code);
     await EmailManager.sendVerifyEmail(this.email, this._id, code);
   }
 });

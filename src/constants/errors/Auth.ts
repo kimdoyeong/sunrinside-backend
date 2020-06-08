@@ -17,3 +17,9 @@ export const EmailForbiddenError = createError(
   "EMAIL_FORBIDDEN",
   "@sunrint.hs.kr 이메일을 사용해야 가입할 수 있습니다."
 );
+
+export const EmailVerifyForbiddenError = createError(
+  403,
+  "EMAIL_VERIFY_FORBIDDEN",
+  "이메일 인증에 실패했습니다."
+);

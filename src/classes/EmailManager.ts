@@ -33,7 +33,7 @@ class EmailManager {
     const url = env.SITE_URL + "/verify/" + id + "/" + code;
     const html = `
         <h1>Sunrinside 이메일 인증 ✉️</h1>
-        <h3>아래 링크를 클릭해 회원가입을 완료하세요.</h3>
+        <h3>아래 링크를 클릭해 회원가입을 완료하세요. <strong>1일이 지나면 만료됩니다.</strong></h3>
         <a href="${url}">${url}</a>
       `;
 
