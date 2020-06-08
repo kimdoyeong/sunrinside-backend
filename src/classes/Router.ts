@@ -14,6 +14,13 @@ class Router {
   getRouter() {
     return this.router;
   }
+  registerSubrouter(path: string, subrouter: typeof Router) {
+    const router = new subrouter();
+    this.router.use(path, router.getRouter());
+  }
+  use(...handlers: RequestHandler[]) {
+    this.router.use(...handlers);
+  }
   register(
     method: HTTPMethod,
     path: string,
