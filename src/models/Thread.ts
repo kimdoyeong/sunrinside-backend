@@ -86,7 +86,6 @@ threadSchema.pre("save", async function (this: ThreadDocument, next) {
 
   const point =
     this.vote.up - this.vote.down + this.subthreads.length + subthreadAllPoint;
-  console.log(this.subthreads, subthreadAllPoint, point);
   this.statics = {
     ...this.statics,
     point,
