@@ -1,5 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 import User from "./User";
+import { ThreadNotFound } from "../constants/errors/NotFound";
 
 const modelName = "thread";
 const threadSchema = new Schema({
@@ -93,4 +94,42 @@ threadSchema.pre("save", async function (this: ThreadDocument, next) {
 });
 const Thread = model<ThreadDocument>(modelName, threadSchema);
 
+export async function getThreadWithSubthreads(_id: string) {
+  const userNo: any = {};
+  let i = 1;
+
+  async function getSubthreads(subthreads: string[]) {
+    if (subthreads.length === 0) return [];
+
+    const threads = await Promise.all(
+      subthreads.map(async (_id) => {
+        const subthread = await Thread.findById(_id);
+        if (!subthread) return null;
+        if (!userNo[subthread.by.toString()]) {
+          userNo[subthread.by.toString()] = {
+            userId: i++,
+          };
+        }
+
+        const data: any = subthread.toObject();
+        data.subthreads = await getSubthreads(subthread.subthreads);
+        data.by = userNo[subthread.by.toString()];
+        return data;
+      })
+    );
+    return threads.filter(Boolean);
+  }
+  const thread = await Thread.findOne({ _id, isSubthread: false });
+  if (!thread) throw ThreadNotFound;
+
+  const data = thread.toObject();
+  data.subthreads = await getSubthreads(thread.subthreads);
+  userNo[thread.by.toString()] = {
+    userId: i++,
+    isWriter: true,
+  };
+  data.by = userNo[thread.by.toString()];
+
+  return data;
+}
 export default Thread;
