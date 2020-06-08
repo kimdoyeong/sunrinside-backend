@@ -15,6 +15,10 @@ const threadSchema = new Schema({
     ref: User.modelName,
     required: true,
   },
+  isSubthread: {
+    type: Boolean,
+    default: false,
+  },
   subthreads: [
     {
       type: Schema.Types.ObjectId,
@@ -51,10 +55,12 @@ export interface IThread {
   by: string;
   subthreads?: string[];
   medias?: string[];
+  isSubthread?: boolean;
 }
 export interface ThreadDocument extends IThread, Document {
   subthreads: string[];
   medias: string[];
+  isSubthread: boolean;
   vote: {
     up: number;
     down: number;
