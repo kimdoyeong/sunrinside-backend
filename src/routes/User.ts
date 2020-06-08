@@ -1,4 +1,4 @@
-import Router from "../classes/Router";
+import Router, { RequestWithLogin } from "../classes/Router";
 import { Request } from "express";
 import RootRouter from "../classes/RootRouter";
 import User, { IUser } from "../models/User";
@@ -7,6 +7,7 @@ class UserRouter extends Router {
   constructor() {
     super();
 
+    this.register("get", "/user", this.getUser, { auth: true });
     this.register("post", "/user", this.createUser, {
       validateForm: {
         type: "body",
@@ -67,6 +68,21 @@ class UserRouter extends Router {
       success: true,
       data: {
         exists: !!user,
+      },
+    };
+  }
+  async getUser(req: RequestWithLogin) {
+    const {
+      user: { name, isAdmin, email, username },
+    } = req;
+    return {
+      status: 200,
+      success: true,
+      data: {
+        name,
+        isAdmin,
+        email,
+        username,
       },
     };
   }
