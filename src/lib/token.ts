@@ -35,6 +35,7 @@ export async function verifyToken(
   user: UserDocument;
 }> {
   const data = await decodeToken(token);
+  if (!data) throw TokenForbiddenError;
   const user = await User.findById(data.userId);
   if (!user) throw TokenForbiddenError;
 
