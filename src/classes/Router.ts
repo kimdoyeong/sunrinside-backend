@@ -8,6 +8,7 @@ import validateForm, { ValidateFormType } from "../lib/validateForm";
 import { FormBadRequestError } from "../constants/errors/BadRequest";
 import { verifyToken } from "../lib/token";
 import { TokenForbiddenError } from "../constants/errors/Auth";
+import { UserDocument } from "../models/User";
 
 interface PathOptions {
   middlewares?: RequestHandler[];
@@ -16,6 +17,9 @@ interface PathOptions {
     form: ValidateFormType;
   };
   auth?: "admin" | "user" | boolean;
+}
+export interface RequestWithLogin extends Request {
+  user: UserDocument;
 }
 class Router {
   private router = ExpressRouter();
@@ -42,7 +46,7 @@ class Router {
     options?: PathOptions
   ) {
     const wrapHandler: RequestHandler = (req, res, next) => {
-      this.handleRegisterOptions(req, options)
+      this.handleRegisterOptions(req as any, options)
         .then(() => {
           return Promise.resolve(handler(req, res, next));
         })
@@ -57,7 +61,10 @@ class Router {
     };
     this.router[method](path, ...(options?.middlewares || []), wrapHandler);
   }
-  private async handleRegisterOptions(req: Request, options?: PathOptions) {
+  private async handleRegisterOptions(
+    req: RequestWithLogin,
+    options?: PathOptions
+  ) {
     if (!options) return;
 
     if (options.validateForm) {
@@ -76,12 +83,12 @@ class Router {
       const authorization = req.headers["authorization"];
       if (!authorization || typeof authorization !== "string")
         throw TokenForbiddenError;
-      const tokenData = await verifyToken(authorization);
+      const data = await verifyToken(authorization);
 
-      if (options.auth === "admin" && !tokenData.user.isAdmin)
+      if (options.auth === "admin" && !data.user.isAdmin)
         throw TokenForbiddenError;
+      req.user = data.user;
     }
   }
 }
-
 export default Router;
