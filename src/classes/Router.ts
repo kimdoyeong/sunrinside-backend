@@ -23,10 +23,16 @@ export interface RequestWithLogin extends Request {
 }
 class Router {
   private router = ExpressRouter();
+  private routerPath = "/";
 
-  constructor() {
+  constructor(path?: string) {
     this.router.use(express.json());
     this.register.bind(this);
+
+    if (path) this.routerPath = path;
+  }
+  get path() {
+    return this.routerPath;
   }
 
   getRouter() {

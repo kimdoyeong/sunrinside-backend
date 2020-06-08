@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
 import RouterClass from "../classes/Router";
-import { InternalServerError } from "../constants/errors/InternalServer";
 import { ActionNotFound } from "../constants/errors/NotFound";
 import handleError from "../lib/handleError";
 class RootRouter {
@@ -8,7 +7,7 @@ class RootRouter {
 
   public static register(routerClass: typeof RouterClass) {
     const router = new routerClass();
-    this.router.use(router.getRouter());
+    this.router.use(router.path, router.getRouter());
   }
   public static getRouter() {
     const router = this.router;
