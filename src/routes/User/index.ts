@@ -1,21 +1,22 @@
-import Router, { RequestWithLogin } from "../classes/Router";
 import { Request } from "express";
-import RootRouter from "../classes/RootRouter";
-import User, { IUser } from "../models/User";
-import { UserNotFound } from "../constants/errors/NotFound";
+import Router, { RequestWithLogin } from "../../classes/Router";
+import RootRouter from "../../classes/RootRouter";
+import User, { IUser } from "../../models/User";
+import { UserNotFound } from "../../constants/errors/NotFound";
+import UserAdminRouter from "./admin";
 
 class UserRouter extends Router {
   constructor() {
-    super();
-
-    this.register("get", "/user", this.getUser, { auth: true });
-    this.register("put", "/user/:id/email_code", this.verifyEmail, {
+    super("/user");
+    this.registerSubrouter("/", UserAdminRouter);
+    this.register("get", "/", this.getUser, { auth: true });
+    this.register("put", "/:id/email_code", this.verifyEmail, {
       validateForm: {
         type: "query",
         form: { code: { required: true, type: "string" } },
       },
     });
-    this.register("post", "/user", this.createUser, {
+    this.register("post", "/", this.createUser, {
       validateForm: {
         type: "body",
         form: {
@@ -38,7 +39,7 @@ class UserRouter extends Router {
         },
       },
     });
-    this.register("get", "/user/exists", this.isExistsUser, {
+    this.register("get", "/exists", this.isExistsUser, {
       validateForm: {
         type: "query",
         form: {
