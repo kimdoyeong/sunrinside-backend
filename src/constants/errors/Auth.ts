@@ -11,3 +11,9 @@ export const AuthForbiddenError = createError(
   "AUTH_FORBIDDEN",
   "로그인에 실패했습니다."
 );
+
+export const EmailForbiddenError = createError(
+  401,
+  "EMAIL_FORBIDDEN",
+  "@sunrint.hs.kr 이메일을 사용해야 가입할 수 있습니다."
+);

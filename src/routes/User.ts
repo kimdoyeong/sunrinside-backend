@@ -23,6 +23,10 @@ class UserRouter extends Router {
             required: true,
             type: "string",
           },
+          email: {
+            required: true,
+            type: "string",
+          },
         },
       },
     });
@@ -40,11 +44,12 @@ class UserRouter extends Router {
   }
 
   async createUser(req: Request) {
-    const { username, password, name } = req.body;
+    const { username, password, name, email } = req.body;
     const user = new User({
       name,
       username,
       password,
+      email,
     } as IUser);
 
     await user.save();

@@ -5,6 +5,7 @@ services:
     command: yarn dev
     volumes:
       - .:/usr/app
+      - ~/.aws:/root/.aws
     ports:
       - 4000:4000
     links:
