@@ -19,6 +19,10 @@ const threadSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   subthreads: [
     {
       type: Schema.Types.ObjectId,
@@ -70,6 +74,24 @@ export interface ThreadDocument extends IThread, Document {
   };
 }
 
+threadSchema.pre("save", async function (this: ThreadDocument, next) {
+  const subthreads = await Promise.all(
+    this.subthreads.map((subthread) =>
+      Thread.findById(subthread, ["statics.point"])
+    )
+  );
+  const subthreadAllPoint = subthreads
+    .map((v) => v?.statics.point || 0)
+    .reduce((a, b) => a + b, 0);
+
+  const point =
+    this.vote.up - this.vote.down + this.subthreads.length + subthreadAllPoint;
+  console.log(this.subthreads, subthreadAllPoint, point);
+  this.statics = {
+    ...this.statics,
+    point,
+  };
+});
 const Thread = model<ThreadDocument>(modelName, threadSchema);
 
 export default Thread;
