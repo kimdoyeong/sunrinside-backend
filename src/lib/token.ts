@@ -24,16 +24,21 @@ export async function createToken(user: UserDocument) {
 export async function decodeToken(token: string): Promise<TokenData> {
   return (await decode(token)) as any;
 }
-export async function verifyToken(token: string): Promise<TokenData> {
+export async function verifyToken(
+  token: string
+): Promise<{
+  token: TokenData;
+  user: UserDocument;
+}> {
   const data = await decodeToken(token);
   const user = await User.findById(data.userId);
   if (!user) throw TokenForbiddenError;
 
   try {
-    const data: any = await verify(token, user.key);
+    const tokenData: any = await verify(token, user.key);
     return {
-      ...data,
-      isAdmin: !!user.isAdmin,
+      token: tokenData,
+      user,
     };
   } catch (e) {
     console.error(e);

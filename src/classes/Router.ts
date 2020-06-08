@@ -78,7 +78,7 @@ class Router {
         throw TokenForbiddenError;
       const tokenData = await verifyToken(authorization);
 
-      if (options.auth === "admin" && !tokenData.isAdmin)
+      if (options.auth === "admin" && !tokenData.user.isAdmin)
         throw TokenForbiddenError;
     }
   }
