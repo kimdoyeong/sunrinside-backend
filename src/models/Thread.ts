@@ -35,6 +35,14 @@ const threadSchema = new Schema({
       down: 0,
     },
   },
+  statics: {
+    type: {
+      point: Number,
+    },
+    default: {
+      point: 0,
+    },
+  },
 });
 
 export interface IThread {
@@ -50,6 +58,9 @@ export interface ThreadDocument extends IThread, Document {
   vote: {
     up: number;
     down: number;
+  };
+  statics: {
+    point: number;
   };
 }
 
