@@ -2,12 +2,19 @@ import Router, { RequestWithLogin } from "../classes/Router";
 import { Request } from "express";
 import RootRouter from "../classes/RootRouter";
 import User, { IUser } from "../models/User";
+import { UserNotFound } from "../constants/errors/NotFound";
 
 class UserRouter extends Router {
   constructor() {
     super();
 
     this.register("get", "/user", this.getUser, { auth: true });
+    this.register("put", "/user/:id/email_code", this.verifyEmail, {
+      validateForm: {
+        type: "query",
+        form: { code: { required: true, type: "string" } },
+      },
+    });
     this.register("post", "/user", this.createUser, {
       validateForm: {
         type: "body",
@@ -53,6 +60,7 @@ class UserRouter extends Router {
       email,
     } as IUser);
 
+    await user.requestVerify();
     await user.save();
 
     return {
@@ -84,6 +92,24 @@ class UserRouter extends Router {
         email,
         username,
       },
+    };
+  }
+  async verifyEmail(req: Request) {
+    const code: string = req.query.code as any;
+    const id = req.params.id;
+
+    const user = await User.findById(id);
+    if (!user) throw UserNotFound;
+    await user.verifyEmail(code);
+    await user.updateOne({
+      emailValidate: {
+        validated: true,
+      },
+    });
+
+    return {
+      success: true,
+      status: 200,
     };
   }
 }

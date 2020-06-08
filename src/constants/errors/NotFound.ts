@@ -5,3 +5,9 @@ export const ActionNotFound = createError(
   "ACTION_NOT_FOUND",
   "액션을 찾을 수 없습니다."
 );
+
+export const UserNotFound = createError(
+  404,
+  "USER_NOT_FOUND",
+  "유저를 찾을 수 없습니다."
+);

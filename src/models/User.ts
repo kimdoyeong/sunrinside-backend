@@ -70,40 +70,39 @@ export interface UserDocument extends IUser, Document {
   isAdmin: boolean;
   validatePassword(password: string): boolean;
   verifyEmail(code: string): void;
+  requestVerify(): void;
 }
 
-UserSchema.methods.validatePassword = function (
-  this: UserDocument,
-  password: string
-) {
-  const encryptedPassword = pbkdf2Sync(
-    password,
-    this.key,
-    100000,
-    64,
-    "sha512"
-  ).toString("base64");
-  return this.password === encryptedPassword;
-};
-UserSchema.methods.verifyEmail = function (this: UserDocument, code: string) {
-  if (!this.emailValidate.issued) throw EmailVerifyForbiddenError;
-  if (Date.now() - this.emailValidate.issued > 1000 * 60 * 60 * 24)
-    throw EmailVerifyForbiddenError;
-  if (this.emailValidate.code !== code) throw EmailVerifyForbiddenError;
-};
-UserSchema.pre("validate", function (this: UserDocument, next) {
-  if (!this.email.match(/\@sunrint\.hs\.kr$/) && !env.IGNORE_EMAIL_HOST)
-    throw EmailForbiddenError;
-  next();
-});
-UserSchema.pre("save", async function (this: UserDocument) {
-  if (!this.emailValidate.code && !this.emailValidate.validated) {
+UserSchema.methods = {
+  async requestVerify(this: UserDocument) {
     const code = randomChars(24);
     this.emailValidate.code = code;
     this.emailValidate.issued = Date.now();
 
     await EmailManager.sendVerifyEmail(this.email, this._id, code);
-  }
+  },
+  validatePassword(this: UserDocument, password: string) {
+    const encryptedPassword = pbkdf2Sync(
+      password,
+      this.key,
+      100000,
+      64,
+      "sha512"
+    ).toString("base64");
+    return this.password === encryptedPassword;
+  },
+  async verifyEmail(this: UserDocument, code: string) {
+    if (!this.emailValidate.issued) throw EmailVerifyForbiddenError;
+    if (Date.now() - this.emailValidate.issued > 1000 * 60 * 60 * 24)
+      throw EmailVerifyForbiddenError;
+    if (this.emailValidate.code !== code) throw EmailVerifyForbiddenError;
+    this.emailValidate.validated = true;
+  },
+};
+UserSchema.pre("validate", function (this: UserDocument, next) {
+  if (!this.email.match(/\@sunrint\.hs\.kr$/) && !env.IGNORE_EMAIL_HOST)
+    throw EmailForbiddenError;
+  next();
 });
 
 const User = model<UserDocument>("user", UserSchema);
