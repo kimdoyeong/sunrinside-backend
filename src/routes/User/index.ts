@@ -8,7 +8,6 @@ import UserAdminRouter from "./admin";
 class UserRouter extends Router {
   constructor() {
     super("/user");
-    this.registerSubrouter("/", UserAdminRouter);
     this.register("get", "/", this.getUser, { auth: true });
     this.register("put", "/:id/email_code", this.verifyEmail, {
       validateForm: {
@@ -50,6 +49,7 @@ class UserRouter extends Router {
         },
       },
     });
+    this.registerSubrouter("/", UserAdminRouter);
   }
 
   async createUser(req: Request) {
