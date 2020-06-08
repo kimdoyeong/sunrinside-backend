@@ -1,7 +1,9 @@
-import Router, { RequestWithLogin } from "../classes/Router";
-import Thread, { IThread, getThreadWithSubthreads } from "../models/Thread";
-import { ThreadNotFound } from "../constants/errors/NotFound";
-import RootRouter from "../classes/RootRouter";
+import Router, { RequestWithLogin } from "../../classes/Router";
+import Thread, { IThread } from "../../models/Thread";
+import { ThreadNotFound } from "../../constants/errors/NotFound";
+import RootRouter from "../../classes/RootRouter";
+import ThreadListRouter from "./list";
+import ThreadManager from "../../classes/ThreadManager";
 
 class ThreadRouter extends Router {
   constructor() {
@@ -36,6 +38,7 @@ class ThreadRouter extends Router {
       },
     });
     this.register("get", "/:id", this.getThread, { auth: true });
+    this.registerSubrouter("/", ThreadListRouter);
   }
 
   createThread(isSubThread: boolean = false) {
@@ -78,7 +81,7 @@ class ThreadRouter extends Router {
   async getThread(req: RequestWithLogin) {
     const _id = req.params.id;
 
-    const thread = await getThreadWithSubthreads(_id);
+    const thread = await ThreadManager.getWithSubthreads(_id);
 
     return {
       status: 200,
