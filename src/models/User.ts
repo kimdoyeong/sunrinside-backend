@@ -34,6 +34,9 @@ const UserSchema = new Schema({
     required: true,
     unique: true,
   },
+  isAdmin: {
+    type: Boolean,
+  },
   emailValidate: {
     type: {
       validated: Boolean,
