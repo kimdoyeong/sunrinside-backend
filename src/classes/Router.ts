@@ -1,8 +1,22 @@
-import express, { Router as ExpressRouter, RequestHandler } from "express";
+import express, {
+  Router as ExpressRouter,
+  RequestHandler,
+  Request,
+} from "express";
 import { HTTPMethod } from "../types/http";
 import validateForm, { ValidateFormType } from "../lib/validateForm";
 import { FormBadRequestError } from "../constants/errors/BadRequest";
+import { verifyToken } from "../lib/token";
+import { TokenForbiddenError } from "../constants/errors/Auth";
 
+interface PathOptions {
+  middlewares?: RequestHandler[];
+  validateForm?: {
+    type: "query" | "body" | "params";
+    form: ValidateFormType;
+  };
+  auth?: "admin" | "user" | boolean;
+}
 class Router {
   private router = ExpressRouter();
 
@@ -25,28 +39,14 @@ class Router {
     method: HTTPMethod,
     path: string,
     handler: any,
-    options?: {
-      middlewares?: RequestHandler[];
-      validateForm?: {
-        type: "query" | "body" | "params";
-        form: ValidateFormType;
-      };
-    }
+    options?: PathOptions
   ) {
     const wrapHandler: RequestHandler = (req, res, next) => {
-      if (options?.validateForm) {
-        const data = req[options.validateForm.type];
-        const { isValid, notValidKeys } = validateForm(
-          data,
-          options.validateForm.form
-        );
-
-        if (!isValid) {
-          return next(FormBadRequestError(notValidKeys.join(", ")));
-        }
-      }
-      Promise.resolve(handler(req, res, next))
-        .then((value) => {
+      this.handleRegisterOptions(req, options)
+        .then(() => {
+          return Promise.resolve(handler(req, res, next));
+        })
+        .then((value: any) => {
           if (value) {
             res.status(value.status || 200).json(value);
           }
@@ -56,6 +56,31 @@ class Router {
         });
     };
     this.router[method](path, ...(options?.middlewares || []), wrapHandler);
+  }
+  private async handleRegisterOptions(req: Request, options?: PathOptions) {
+    if (!options) return;
+
+    if (options.validateForm) {
+      const data = req[options.validateForm.type];
+      const { isValid, notValidKeys } = validateForm(
+        data,
+        options.validateForm.form
+      );
+
+      if (!isValid) {
+        throw FormBadRequestError(notValidKeys.join(", "));
+      }
+    }
+
+    if (options.auth) {
+      const authorization = req.headers["authorization"];
+      if (!authorization || typeof authorization !== "string")
+        throw TokenForbiddenError;
+      const tokenData = await verifyToken(authorization);
+
+      if (options.auth === "admin" && !tokenData.isAdmin)
+        throw TokenForbiddenError;
+    }
   }
 }
 

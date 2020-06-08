@@ -5,6 +5,7 @@ import { TokenForbiddenError } from "../constants/errors/Auth";
 interface TokenData {
   username: string;
   userId: string;
+  isAdmin?: boolean;
 }
 export async function createToken(user: UserDocument) {
   return await sign(
@@ -30,7 +31,10 @@ export async function verifyToken(token: string): Promise<TokenData> {
 
   try {
     const data: any = await verify(token, user.key);
-    return data;
+    return {
+      ...data,
+      isAdmin: !!user.isAdmin,
+    };
   } catch (e) {
     console.error(e);
     throw TokenForbiddenError;
