@@ -36,6 +36,7 @@ const UserSchema = new Schema({
   },
   isAdmin: {
     type: Boolean,
+    default: false,
   },
   emailValidate: {
     type: {
@@ -52,6 +53,7 @@ export interface IUser {
   password: string;
   name: string;
   email: string;
+  isAdmin?: boolean;
 }
 export interface UserDocument extends IUser, Document {
   key: string;
@@ -59,6 +61,7 @@ export interface UserDocument extends IUser, Document {
     validated: boolean;
     code: string | undefined;
   };
+  isAdmin: boolean;
   validatePassword(password: string): boolean;
 }
 
