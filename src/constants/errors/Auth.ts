@@ -1,5 +1,11 @@
 import createError from "../../lib/createError";
 
+export const TokenIssueForbiddenError = createError(
+  403,
+  "TOKEN_ISSUE_FORBIDDEN",
+  "토큰 발급에 실패했습니다."
+);
+
 export const TokenForbiddenError = createError(
   403,
   "TOKEN_FORBIDDEN",

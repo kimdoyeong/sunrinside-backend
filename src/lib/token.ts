@@ -1,6 +1,9 @@
 import { sign, decode, verify } from "jsonwebtoken";
 import User, { UserDocument } from "../models/User";
-import { TokenForbiddenError } from "../constants/errors/Auth";
+import {
+  TokenForbiddenError,
+  TokenIssueForbiddenError,
+} from "../constants/errors/Auth";
 
 interface TokenData {
   username: string;
@@ -8,6 +11,7 @@ interface TokenData {
   isAdmin?: boolean;
 }
 export async function createToken(user: UserDocument) {
+  if (!user.emailValidate.validated) throw TokenIssueForbiddenError;
   return await sign(
     {
       username: user.username,
