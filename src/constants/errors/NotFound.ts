@@ -11,3 +11,9 @@ export const UserNotFound = createError(
   "USER_NOT_FOUND",
   "유저를 찾을 수 없습니다."
 );
+
+export const ThreadNotFound = createError(
+  404,
+  "THREAD_NOT_FOUND",
+  "쓰레드를 찾을 수 없습니다."
+);
