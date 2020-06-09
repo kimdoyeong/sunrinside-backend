@@ -32,11 +32,11 @@ class ThreadManager {
     if (!thread) throw ThreadNotFound;
 
     const data = thread.toObject();
-    data.subthreads = await getSubthreads(thread.subthreads);
     userNo[thread.by.toString()] = {
       userId: i++,
       isWriter: true,
     };
+    data.subthreads = await getSubthreads(thread.subthreads);
     data.by = userNo[thread.by.toString()];
 
     return data;
