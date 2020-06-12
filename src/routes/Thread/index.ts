@@ -1,9 +1,11 @@
+import xss from "xss";
 import Router, { RequestWithLogin } from "../../classes/Router";
 import Thread, { IThread } from "../../models/Thread";
 import { ThreadNotFound } from "../../constants/errors/NotFound";
 import RootRouter from "../../classes/RootRouter";
 import ThreadListRouter from "./list";
 import ThreadManager from "../../classes/ThreadManager";
+import ValidatorBuilder from "../../lib/validatorBuilder";
 
 class ThreadRouter extends Router {
   constructor() {
@@ -13,28 +15,16 @@ class ThreadRouter extends Router {
       auth: true,
       validateForm: {
         type: "body",
-        form: {
-          title: {
-            required: true,
-            type: "string",
-          },
-          content: {
-            required: true,
-            type: "string",
-          },
-        },
+        form: ValidatorBuilder.create()
+          .add("title", "string", true)
+          .add("content", "string", true),
       },
     });
     this.register("post", "/:id", this.createThread(true), {
       auth: true,
       validateForm: {
         type: "body",
-        form: {
-          content: {
-            required: true,
-            type: "string",
-          },
-        },
+        form: ValidatorBuilder.create().add("content", "string", true),
       },
     });
     this.register("get", "/:id", this.getThread, { auth: true });
@@ -46,7 +36,7 @@ class ThreadRouter extends Router {
       const { title, content } = req.body;
       const thread = new Thread({
         title: !isSubThread ? title : undefined,
-        content,
+        content: xss.filterXSS(content),
         by: req.user._id,
       } as IThread);
       await thread.save();
