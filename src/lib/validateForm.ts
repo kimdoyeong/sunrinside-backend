@@ -1,13 +1,12 @@
 export interface ValidateFormType {
-  [key: string]:
-    | {
-        type?: TypeofTypes;
-        required?: boolean;
-        validate?(v: any): boolean;
-      }
-    | TypeofTypes;
+  [key: string]: ValidateFormKey | TypeofTypes;
 }
 
+export type ValidateFormKey = {
+  type?: TypeofTypes;
+  required?: boolean;
+  validate?(v: any): boolean;
+};
 export type TypeofTypes =
   | "bigint"
   | "boolean"
