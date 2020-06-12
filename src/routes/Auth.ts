@@ -4,6 +4,7 @@ import RootRouter from "../classes/RootRouter";
 import User from "../models/User";
 import { AuthForbiddenError } from "../constants/errors/Auth";
 import { createToken } from "../lib/token";
+import ValidatorBuilder from "../lib/validatorBuilder";
 
 class AuthRouter extends Router {
   constructor() {
@@ -12,16 +13,9 @@ class AuthRouter extends Router {
     this.register("post", "/auth", this.createToken, {
       validateForm: {
         type: "body",
-        form: {
-          username: {
-            required: true,
-            type: "string",
-          },
-          password: {
-            required: true,
-            type: "string",
-          },
-        },
+        form: ValidatorBuilder.create()
+          .add("username", "string", true)
+          .add("password", "string", true),
       },
     });
   }
