@@ -9,12 +9,13 @@ import { FormBadRequestError } from "../constants/errors/BadRequest";
 import { verifyToken } from "../lib/token";
 import { TokenForbiddenError } from "../constants/errors/Auth";
 import { UserDocument } from "../models/User";
+import ValidatorBuilder from "../lib/validatorBuilder";
 
 interface PathOptions {
   middlewares?: RequestHandler[];
   validateForm?: {
     type: "query" | "body" | "params";
-    form: ValidateFormType;
+    form: ValidateFormType | ValidatorBuilder;
   };
   auth?: "admin" | "user" | boolean;
 }

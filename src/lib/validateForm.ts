@@ -1,3 +1,5 @@
+import ValidatorBuilder from "./validatorBuilder";
+
 export interface ValidateFormType {
   [key: string]: ValidateFormKey | TypeofTypes;
 }
@@ -17,9 +19,14 @@ export type TypeofTypes =
   | "symbol"
   | "undefined";
 
-function validateForm(data: any = {}, forms: ValidateFormType) {
+function validateForm(
+  data: any = {},
+  _forms: ValidateFormType | ValidatorBuilder
+) {
   let isValidAll = true;
   const notValidKeys: string[] = [];
+  const forms =
+    _forms instanceof ValidatorBuilder ? _forms.getObject() : _forms;
 
   function foundNotValid(key: string) {
     notValidKeys.push(key);
