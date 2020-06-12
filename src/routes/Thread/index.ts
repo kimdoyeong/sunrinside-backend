@@ -1,4 +1,3 @@
-import xss from "xss";
 import Router, { RequestWithLogin } from "../../classes/Router";
 import Thread, { IThread } from "../../models/Thread";
 import { ThreadNotFound } from "../../constants/errors/NotFound";
@@ -6,6 +5,7 @@ import RootRouter from "../../classes/RootRouter";
 import ThreadListRouter from "./list";
 import ThreadManager from "../../classes/ThreadManager";
 import ValidatorBuilder from "../../lib/validatorBuilder";
+import xssGuard from "../../lib/xssGuard";
 
 class ThreadRouter extends Router {
   constructor() {
@@ -36,7 +36,7 @@ class ThreadRouter extends Router {
       const { title, content } = req.body;
       const thread = new Thread({
         title: !isSubThread ? title : undefined,
-        content: xss.filterXSS(content),
+        content: xssGuard(content),
         by: req.user._id,
       } as IThread);
       await thread.save();
